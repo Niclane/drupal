@@ -1,0 +1,3 @@
+[submodule "sites/all/modules/admin_menu"]
+	path = sites/all/modules/admin_menu
+	url = http://git.drupal.org/project/admin_menu.git
