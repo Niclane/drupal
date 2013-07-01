@@ -7,3 +7,6 @@
 [submodule "sites/all/modules/elysia_cron"]
 	path = sites/all/modules/elysia_cron
 	url = http://git.drupal.org/project/elysia_cron.git
+[submodule "sites/all/modules/metatag"]
+	path = sites/all/modules/metatag
+	url = http://git.drupal.org/project/metatag.git
