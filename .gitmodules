@@ -4,3 +4,6 @@
 [submodule "sites/all/modules/pathauto"]
 	path = sites/all/modules/pathauto
 	url = http://git.drupal.org/project/pathauto.git
+[submodule "sites/all/modules/elysia_cron"]
+	path = sites/all/modules/elysia_cron
+	url = http://git.drupal.org/project/elysia_cron.git
