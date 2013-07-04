@@ -16,3 +16,60 @@
 [submodule "sites/all/modules/references"]
 	path = sites/all/modules/references
 	url = http://git.drupal.org/project/references.git
+[submodule "sites/all/modules/quicktabs"]
+	path = sites/all/modules/quicktabs
+	url = http://git.drupal.org/project/quicktabs.git
+[submodule "sites/all/modules/link"]
+	path = sites/all/modules/link
+	url = http://git.drupal.org/project/link.git
+[submodule "sites/all/modules/email"]
+	path = sites/all/modules/email
+	url = http://git.drupal.org/project/email.git
+[submodule "sites/all/modules/menu_block"]
+	path = sites/all/modules/menu_block
+	url = http://git.drupal.org/project/menu_block.git
+[submodule "sites/all/modules/views_bulk_operations"]
+	path = sites/all/modules/views_bulk_operations
+	url = http://git.drupal.org/project/views_bulk_operations.git
+[submodule "sites/all/modules/entity"]
+	path = sites/all/modules/entity
+	url = http://git.drupal.org/project/entity.git
+[submodule "sites/all/modules/nodequeue"]
+	path = sites/all/modules/nodequeue
+	url = http://git.drupal.org/project/nodequeue.git
+[submodule "sites/all/modules/field_group"]
+	path = sites/all/modules/field_group
+	url = http://git.drupal.org/project/field_group.git
+[submodule "sites/all/modules/flag"]
+	path = sites/all/modules/flag
+	url = http://git.drupal.org/project/flag.git
+[submodule "sites/all/modules/votingapi"]
+	path = sites/all/modules/votingapi
+	url = http://git.drupal.org/project/votingapi.git
+[submodule "sites/all/modules/fivestar"]
+	path = sites/all/modules/fivestar
+	url = http://git.drupal.org/project/fivestar.git
+[submodule "sites/all/modules/privatemsg"]
+	path = sites/all/modules/privatemsg
+	url = http://git.drupal.org/project/privatemsg.git
+[submodule "sites/all/modules/captcha"]
+	path = sites/all/modules/captcha
+	url = http://git.drupal.org/project/captcha.git
+[submodule "sites/all/modules/userpoints"]
+	path = sites/all/modules/userpoints
+	url = http://git.drupal.org/project/userpoints.git
+[submodule "sites/all/modules/rules"]
+	path = sites/all/modules/rules
+	url = http://git.drupal.org/project/rules.git
+[submodule "sites/all/modules/services"]
+	path = sites/all/modules/services
+	url = http://git.drupal.org/project/services.git
+[submodule "sites/all/modules/devel"]
+	path = sites/all/modules/devel
+	url = http://git.drupal.org/project/devel.git
+[submodule "sites/all/modules/auto_nodetitle"]
+	path = sites/all/modules/auto_nodetitle
+	url = http://git.drupal.org/project/auto_nodetitle.git
+[submodule "sites/all/modules/date"]
+	path = sites/all/modules/date
+	url = http://git.drupal.org/project/date.git
