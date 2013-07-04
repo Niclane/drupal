@@ -17,7 +17,6 @@ function googleanalytics_variable_info($options) {
     'required' => TRUE,
     'group' => 'googleanalytics',
     'localize' => TRUE,
-    'multidomain' => TRUE,
     'validate callback' => 'googleanalytics_validate_googleanalytics_account',
   );
 

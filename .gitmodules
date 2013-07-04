@@ -13,3 +13,6 @@
 [submodule "sites/all/modules/wysiwyg"]
 	path = sites/all/modules/wysiwyg
 	url = http://git.drupal.org/project/wysiwyg.git
+[submodule "sites/all/modules/references"]
+	path = sites/all/modules/references
+	url = http://git.drupal.org/project/references.git
