@@ -1,0 +1,737 @@
+<?php
+
+
+/**
+ * Implements hook_menu().
+ */
+function my_theming_menu() {
+  $items =  array();
+
+  $items['theme'] = array(
+    'page callback'   => 'my_theming_theme_view',
+    'access callback' => TRUE,
+    'title'           => 'My theme',
+    'menu_name'       => 'main-menu',
+    'weight'          => '50',
+  );
+  $items['table-test'] = array(
+    'title' => 'Myne Table',
+    'page callback' => 'my_theming_show_table',
+    'access callback' => TRUE,
+  );
+  $items['custom_theme'] = array(
+    'page callback' => 'my_theming_custom_page',
+    'title' => 'custom page',
+    'access callback' => TRUE,
+  );
+  $items['custom-form'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('my_theming_test_form'),
+    'title' => 'All forms',
+    'access callback' => TRUE,
+  );
+  $items['contacts'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('my_theming_contact_form'),
+    'title' => t('Contact us'),
+    'access callback' => TRUE,
+  );
+  $items['admin/site-settings'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('my_theming_site_settings_form'),
+    'title' => t('Site settings'),
+    'access arguments' => array('site-settings permission'),
+    'weight' => 10,
+  );
+  return $items;
+}
+
+function my_theming_permission() {
+  return array(
+    'site-settings permission' => array(
+      'title' => t('Permission to site-settings'),
+      'description' => t('Administrate site-settings.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function my_theming_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'my_theming_contact_form') {
+    $form['alter'] = array(
+      '#type' => 'textfield',
+      '#title' => t('This is hook_form_alter'),
+      '#description' => t('description a hook_form_alter'),
+      '#default_value' => t('Yes, it works'),
+      '#weight' => -1,
+    );
+    $form['name']['#title'] = t('Please enter your name');
+    $form['name']['#default_value'] = t('Some name');
+    $form['surname']['#title'] = t('Please enter your surname');
+    $form['surname']['#default_value'] = t('And surname');
+    $form['nick']['#title'] = t('Please enter your nick-name');
+    $form['countries']['#options'][2] = t('Ukraine');
+    $form['agree']['#default_value'] = 1;
+    unset($form['films']['#options'][2]);
+    //debug($form, 'Countries', TRUE);
+    return $form;
+  }
+}
+
+/**
+ * Function my_theming_site_settings_form
+ */
+function my_theming_site_settings_form($form, $form_state) {
+  $form['vertical_tabs'] = array(
+    '#type' => 'vertical_tabs',
+  );
+  $form['fieldset1'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Add users'),
+    '#group' => 'vertical_tabs',
+  );
+  $form['fieldset1']['nick'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Enter user nickname'),
+    '#maxlength' => 20,
+  );
+  $form['fieldset1']['pass'] = array(
+    '#type' => 'password_confirm',
+    '#title' => 'Enter user password',
+    '#size' => 25,
+  );
+  $form['fieldset1']['mail'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Enter user mail',
+    '#size' => 40,
+  );
+  $form['fieldset1']['surname'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Enter surname'),
+    '#maxlength' => 20,
+  );
+  $form['fieldset1']['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Enter name'),
+    '#maxlength' => 20,
+  );
+  $form['fieldset1']['age'] = array(
+    '#type' => 'select',
+    '#title' => t('How old are you?'),
+    '#options' => drupal_map_assoc(range(3, 50)),
+    '#default_value' => 'none',
+  );
+  $form['fieldset1']['how'] = array(
+    '#type' => 'radios',
+    '#title' => t('How did you get to this site?'),
+    '#options' => array(
+      'internet' => t('Saw on the internet'),
+      'friends' => t('Friends told me'),
+      'tv' => t('Saw on the TV'),
+    ),
+  );
+  $form['fieldset1']['img'] = array(
+    '#type' => 'managed_file',
+    '#title' => t('Image'),
+    '#upload_location' => 'public://',
+  );
+  $form['fieldset1']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Add a user'),
+  );
+
+
+  $form['fieldset2'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Create node'),
+    '#group' => 'vertical_tabs',
+  );
+  $form['fieldset2']['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title '),
+    //'#required' => TRUE,
+  );
+  $taxon = db_select('taxonomy_term_data', 'n')
+    ->fields('n', array('tid', 'name'))
+    ->condition('n.vid', '2')
+    ->execute();
+  foreach ($taxon as $value) {
+    $categors[$value->tid] = $value->name;
+  }
+  $form['fieldset2']['film_category'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Category '),
+    '#options' => $categors,
+    //'#required' => TRUE,
+  );
+  $form['fieldset2']['film_img'] = array(
+    '#type' => 'managed_file',
+    '#title' => t('Image'),
+    '#upload_location' => 'public://',
+  );
+  $form['fieldset2']['main_text'] = array(
+    '#type' => 'text_format',
+    '#title' => t('Body '),
+  );
+  $form['fieldset2']['submit2'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save me'),
+  );
+
+
+  $form['fieldset3'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Configurate'),
+    '#group' => 'vertical_tabs',
+  );
+  $form['fieldset3']['name_site'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Please enter site name'),
+    '#maxlength' => 128,
+    '#default_value' => variable_get('site_name'),
+  );
+  $form['fieldset3']['main_page'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Please enter the front page adress (default http://drupal.loc/node)'),
+    '#maxlength' => 128,
+    '#field_prefix' => 'http://drupal.loc/',
+    '#default_value' => variable_get('site_frontpage'),
+  );
+  $form['fieldset3']['slogan_site'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Please enter site slogan'),
+    '#maxlength' => 128,
+    '#default_value' => variable_get('site_slogan'),
+  );
+   $account = user_load(1);
+  // unset($account->uid);
+  // $account->name = 'bu1';
+  // $account->is_new = TRUE;
+  // user_save($account);
+  // require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+  // $new = '12345';
+  // $new = user_hash_password($new);
+  // debug($new);
+  // $user = new stdClass();
+  //$load = node_load(14);
+  //debug($load);
+  //debug();
+  return system_settings_form($form);
+}
+
+// Validation my_theming_site_settings_form.
+function my_theming_site_settings_form_validate($form, &$form_state) {
+  if ($form_state['values']['op'] == 'Add a user') {
+    $form_state['values']['nick'] = trim($form_state['values']['nick']);
+    if ($form_state['values']['nick'] != '') {
+      $name_db = db_select('users', 'n')
+      ->fields('n', array('name'))
+      ->execute();
+      foreach ($name_db as $value) {
+        if ($form_state['values']['nick'] == $value->name) {
+          form_set_error('nick', t('This nickname is already exist'));
+          break;
+        }
+      }
+      $form_state['values']['nick'] = htmlspecialchars($form_state['values']['nick']);
+    }
+    else {
+      form_set_error('nick', t('Wrong entered nickname'));
+    }
+    if ($form_state['values']['pass'] != '') {
+      require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+      $form_state['values']['pass'] = user_hash_password($form_state['values']['pass']);
+    }
+    else {
+      form_set_error('pass', t('Wrong entered password'));
+    }
+    $form_state['values']['mail'] = trim($form_state['values']['mail']);
+    if (!valid_email_address($form_state['values']['mail'])) {
+      form_set_error('mail', 'Wrong entered mail');
+    }
+    $form_state['values']['surname'] = trim($form_state['values']['surname']);
+    if ($form_state['values']['surname'] != '') {
+      $form_state['values']['surname'] = htmlspecialchars($form_state['values']['surname']);
+    }
+    else {
+      form_set_error('surname', t('Wrong entered surname'));
+    }
+    $form_state['values']['name'] = trim($form_state['values']['name']);
+    if ($form_state['values']['name'] != '') {
+      $form_state['values']['name'] = htmlspecialchars($form_state['values']['name']);
+    }
+    else {
+      form_set_error('name', t('Wrong entered name'));
+    }
+    if ($form_state['values']['how'] == NULL) {
+      form_set_error('how', t('Please enter how field'));
+    }
+  }
+  if ($form_state['values']['op'] == 'Save me') {
+    $form_state['values']['title'] = trim($form_state['values']['title']);
+    if ($form_state['values']['title'] != '') {
+      $form_state['values']['title'] = htmlspecialchars($form_state['values']['title']);
+    }
+    else {
+      form_set_error('title', t('Wrong title'));
+    }
+    $cat_good = 0;
+    foreach ($form_state['values']['film_category'] as $ervl) {
+      $ervl != 0 ? $cat_good = 1 : NULL;
+    }
+    if ($cat_good == 0) {
+      form_set_error('film_category', t('Wrong set category'));
+    }
+      // $name = variable_get('site_name');
+      // variable_set('site_name', 'drupal');
+      // variable_set('site_slogan', '');
+      // debug($name);
+      // global $user;
+      // debug($user);
+    // $dd = node_load(27);
+    // dpm($dd);
+  }
+  $form_state['values']['name_site'] = trim($form_state['values']['name_site']);
+  $form_state['values']['name_site'] = htmlspecialchars($form_state['values']['name_site']);
+  variable_set('site_name', $form_state['values']['name_site']);
+
+  $form_state['values']['main_page'] = trim($form_state['values']['main_page']);
+  variable_set('site_frontpage', $form_state['values']['main_page']);
+
+  $form_state['values']['slogan_site'] = trim($form_state['values']['slogan_site']);
+  $form_state['values']['slogan_site'] = htmlspecialchars($form_state['values']['slogan_site']);
+  variable_set('site_slogan', $form_state['values']['slogan_site']);
+  //debug($form_state['values']);
+     //form_set_error('name','addsf');
+}
+
+// Submit my_theming_site_settings_form.
+function my_theming_site_settings_form_submit($form, $form_state) {
+  $l = LANGUAGE_NONE;
+  if ($form_state['values']['op'] == 'Add a user') {
+    $user = new stdClass();
+    $user->is_new = TRUE;
+    $user->name = $form_state['values']['nick'];
+    $user->pass = $form_state['values']['pass'];
+    $user->mail = $form_state['values']['mail'];
+    $user->field_surname[$l][0]['value'] = $form_state['values']['surname'];
+    $user->field_name[$l][0]['value'] = $form_state['values']['name'];
+    $user->field_age[$l][0]['value'] = $form_state['values']['age'];
+    $user->field_tosite[$l][0]['value'] = $form_state['values']['how'];
+    $user->status = 1;
+    if (!empty($form_state['values']['img'])) {
+      $file = file_load($form_state['values']['img']);
+      $file->status = FILE_STATUS_PERMANENT;
+      file_save($file);
+      $user->picture = $file->fid;
+    }
+    if (user_save($user)) {
+      drupal_set_message(t('User added successfully :)'));
+    }
+  }
+
+  if ($form_state['values']['op'] == 'Save me') {
+    $node = new stdClass();
+    $node->is_new = TRUE;
+    global $user;
+    $node->uid = $user->uid;
+    $node->type = 'news';
+    $node->title = $form_state['values']['title'];
+    foreach ($form_state['values']['film_category'] as $vlue) {
+      if ($vlue != 0) {
+        $cat[] = array('tid' => $vlue);
+      }
+    }
+    $node->field_news_category['und'] = $cat;
+    $node->body['und'][0]['value'] = $form_state['values']['main_text']['value'];
+    $node->body['und'][0]['format'] = $form_state['values']['main_text']['format'];
+    if (!empty($form_state['values']['film_img'])) {
+      $file2 = file_load($form_state['values']['film_img']);
+      $file2->status = FILE_STATUS_PERMANENT;
+      file_save($file2);
+      $node->field_pic['und'] = array(array('fid' => $file2->fid));
+    }
+    node_save($node);
+    drupal_set_message(t('Node added successfully'));
+  }
+  //debug($form_state['values']);
+}
+
+
+/**
+ * Function my_theming_contact_form
+ */
+function my_theming_contact_form($form, $form_state) {
+  $form['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Please enter your name:'),
+    '#maxlength' => '40',
+    '#size' => '40',
+  );
+  $form['surname'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Please enter your surname:'),
+    '#maxlength' => '40',
+    '#size' => '40',
+  );
+  $form['nick'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Please enter your nick-name:'),
+    '#maxlength' => '20',
+    '#size' => '20',
+  );
+
+  // valid_email_address($mail)
+  $form['mail'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Please enter your mail:'),
+    '#maxlength' => '40',
+    '#size' => '40',
+  );
+
+  $form['mob'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Please enter your mobile number:'),
+    '#maxlength' => '20',
+    '#size' => '20',
+  );
+
+  // Radios
+  $titles = db_select('node', 'n')
+  ->fields('n', array('nid', 'title'))
+  ->condition('n.type', 'news')
+  ->execute();
+  foreach ($titles as $value) {
+    $radio_title[] = $value->title;
+  }
+  $form['films'] = array(
+    '#type' => 'radios',
+    '#options' => $radio_title,
+    '#title' => t('Please choose a film'),
+  );
+
+  $form['countries'] = array(
+    '#type' => 'select',
+    '#title' => t('Please select your country'),
+    '#options' => array('Russia', 'USA', 'Ukraine'),
+    '#default_value' => 2,
+  );
+  $form['message'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Type your message'),
+  );
+  $form['agree'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Agree with the rules'),
+  );
+  $form['some_text'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Textfield for random text'),
+  );
+  $form['some_text']['text'] = array(
+    '#type' => 'item',
+    '#title' => 'This is random text',
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Send'),
+  );
+  return $form;
+}
+
+
+function my_theming_test_form($form, $form_state) {
+  $form['fieldset'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('This is a fieldset'),
+    '#weight' => -10,
+  );
+  $form['check1'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Send me a copy.'),
+    '#access' => true,
+  );
+  $form['check2'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('What a copy?'),
+  );
+  $form['checks']['checks1'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Here is checkboxes'),
+    '#options' => drupal_map_assoc(array(
+      '1 checkboxes',
+      '2 checkboxes',
+      '3 checkboxes',)
+    ),
+    '#description' => 'BuBuBu',
+  );
+  $form['fieldset']['date'] = array(
+    '#type' => 'date',
+    '#title' => 'Make up a date:',
+    '#default_value' => array('year' => 2050, 'month' => 3, 'day' => 15),
+    '#description' => 'this is not now date',
+  );
+  $form['file'] = array(
+    '#type' => 'file',
+    '#title' => 'Картинка',
+    '#description' => 'Выберите файл с расширением jpg, jpeg, png или gif',
+  );
+  $form['machine'] = array(
+    '#type' => 'machine_name',
+    '#default_value' => 'sdf',
+    '#maxlength' => 15,
+  );
+  $form['upl'] = array(
+    '#type' => 'managed_file',
+    '#title' => 'Image',
+    '#upload_location' => 'public://',
+  );
+  $form['pass1'] = array(
+    '#type' => 'password',
+    '#title' => 'type your pass',
+    '#maxlength' => 10,
+    '#size' => 20,
+  );
+  $form['pass2'] = array(
+    '#type' => 'password_confirm',
+    '#title' => 're-enter pass',
+  );
+  $form['fieldset']['rad'] = array(
+    '#type' => 'radios',
+    '#title' => 'Big radio',
+    '#options' => array('Big radio 1', 'Big radio 2', 'Big radio 3'),
+  );
+  $form['select'] = array(
+    '#type' => 'select',
+    '#title' => 'This is select',
+    '#options' => array('one', 'two', 'three'),
+    '#default_value' => 1,
+  );
+  $form['tableselect'] = array(
+    '#type' => 'tableselect',
+    '#title' => 'This is tableselect',
+    '#header' => array('one', '2'),
+    '#options' => array(array('first', 'second', 'third'),
+      array('awe', 'more')),
+    '#multiple' => false,
+  );
+  $form['text_format'] = array(
+    '#type' => 'text_format',
+    '#title' => 'This is text format',
+    '#default_value' => 'Some BU',
+  );
+  $form['textarea'] = array(
+    '#type' => 'textarea',
+    '#title' => 'Hey, this is called textarea',
+    '#default_value' => 'Please, write something in me',
+  );
+  $form['textfield'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Enter text here:',
+    '#default_value' => 'Me first',
+  );
+  $form['weight'] = array(
+    '#type' => 'weight',
+    '#title' => 'That is weight',
+    '#delta' => 20,
+  );
+
+  // Vertical tabs
+  $form['vertical_tablo'] = array(
+    '#type' => 'vertical_tabs',
+   );
+  $form['tab1'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Tab 1'),
+    '#group' => 'vertical_tablo',
+  );
+  $form['tab1']['field1'] = array(
+    '#title' => t('That is field 1'),
+    '#type' => 'textfield',
+  );
+  $form['tab2'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Tab 2'),
+    '#group' => 'vertical_tablo',
+  );
+  $form['tab2']['field2'] = array(
+    '#title' => t('Field 2'),
+    '#type' => 'textfield',
+  );
+  // End vertical tabs
+  $form['button'] = array(
+    '#type' => 'button',
+    '#value' => t('Push on me!'),
+  );
+  $form['container'] = array(
+    '#type' => 'container',
+  );
+  $form['image_button'] = array(
+    '#type' => 'image_button',
+    '#src' => 'http://1.bp.blogspot.com/-b3YWne8aCdw/USDmXTnyUiI/AAAAAAAAAkg/SieNqYTVQKQ/s1600/back-to-top-button.png',
+  );
+  $form['actions'] = array(
+    '#type' => 'actions',
+  );
+  $form['actions']['delete'] = array(
+    '#type' => 'button',
+    '#value' => 'asdf',
+  );
+  $form['actions']['cancel'] = array(
+    '#markup' => l('tefd ','asdf'),
+  );
+  $form['item'] = array(
+    '#type' => 'item',
+    '#title' => '<a href="http://www.google.com.ua">google.com.ua</a>',
+  );
+  $form['token'] = array(
+    '#type' => 'token',
+    '#value' => t('fdsgdsg'),
+  );
+
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Import'),
+    '#weight' => 50,
+  );
+  $file = file_load(13);
+  //debug($file, 'derek');
+  //$form = drupal_get_form('user_register_form');
+  return $form;
+}
+
+function my_theming_test_form_validate($form, &$form_state) {
+  $validators = array(
+    'file_validate_is_image' => array(),
+    'file_validate_extensions' => array('png gif jpg jpeg'),
+    'file_validate_size' => array(1 * 1024 * 1024),
+  );
+  if ($file = file_save_upload('file', $validators, 'public://')) {
+    $form_state['values']['file'] = $file;
+  }
+  else {
+    form_set_error('file', 'Файл не был загружен');
+  }
+}
+
+function my_theming_test_form_submit($form, &$form_state) {
+  $file = $form_state['values']['file'];
+  $file->status = FILE_STATUS_PERMANENT;
+  file_save($file);
+  drupal_set_message('Картинка загружена');
+  debug($_POST, 'Post');
+  debug($form_state['values'], 'derek');
+}
+
+/**
+ * Function my_theming_custom_page
+ */
+function my_theming_custom_page() {
+  //return 'text';
+  $hello = 'Its me';
+  return theme('custom_theme', array('hello' => $hello));
+}
+
+/**
+ * Implements hook_theme().
+ */
+
+function my_theming_theme() {
+  return array(
+    'custom_theme' => array(
+      'template' => 'custom-theme',
+      'variables' => array('hello' => NULL),
+    ),
+  );
+}
+
+
+/**
+ * Function my_theming_show table
+ */
+function my_theming_show_table() {
+  $perpage = 10;
+  $rows = array();
+  $nodes = db_select('node', 'n')
+  ->fields('n', array('nid', 'title', 'type'))
+  ->condition('n.uid', 1)
+  ->execute();
+  $txt = '';
+  foreach ($nodes as $value) {
+    $ar = array (
+      'title' => $value->title,
+      'nid'   => $value->nid,
+      'type'  => $value->type,
+      );
+    $rws[] = array(t($ar['nid']), t($ar['type']), t($ar['title']));
+  }
+  $table = array(
+    'header' => array(
+      'data1' => 'NID',
+      'data2' => 'Тип',
+      'data3' => 'Заголовок',
+    ),
+    'rows' => $rws,
+    'attributes' => array(),
+    'caption' => '',
+    'colgroups' => array(),
+    'sticky' => 'sticky',
+    'empty' => 'empty',
+  );
+  $text = theme('table', $table);
+  return $text;
+}
+
+/**
+ * Function my_theming_theme_view
+ */
+function my_theming_theme_view() {
+  $list = array(
+    'items' => array(1, 2, 5, 10, 15, t('some string')),
+    'title' => t('Title of list'),
+    'type'  => 'ul',
+    'attributes' => array(),
+  );
+
+  $fieldset = array(
+    'element' => array(
+      '#title' => t('Title for fieldset'),
+      '#value' => t('Value of the fieldset'),
+      '#children' => '',
+    ),
+  );
+
+  $table = array(
+    'header' => array(
+      'data' => 'Some data',
+      'attributes' => array(
+      'colspan' => 2,
+      ),
+    ),
+    'rows' => array(
+      array(t('cell1'), t('cell2'), t('cell3')),
+      array(array('data' => t('cell4'), 'colspan' => 3)),
+      array(t('cell5'), t('cell6')),
+    ),
+    'attributes' => array(),
+    'caption' => '',
+    'colgroups' => array(),
+    'sticky' => 'sticky',
+    'empty' => 'empty',
+  );
+
+  $image = array(
+    'path' => 'public://images/fun.jpg',
+    'width' => '240',
+    'height' => '218',
+    'style_name' => 'medium',
+  );
+
+  $text = theme_item_list($list);
+  $text .= theme_fieldset($fieldset);
+  $text .= theme_table($table);
+  $text .= theme_image_style($image);
+  return $text;
+}

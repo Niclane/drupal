@@ -1,0 +1,5 @@
+name = Test Field Inline
+description = Тестируем вывод полей в строку. Автор: <a href=http://frantsuzzz.com>Frantsuzzz</a>
+package = Electrod servis
+core = 7.x
+

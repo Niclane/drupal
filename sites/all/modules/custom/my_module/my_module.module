@@ -1,0 +1,170 @@
+<?php
+/**
+ * Implements hook_permission().
+ */
+function my_module_permission() {
+  return array(
+    'administer my module' => array(
+      'title' => t('You can administer my module'),
+      'description' => t('Do the administration tasks for my module.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_init().
+ */
+function my_module_init() {
+  if (drupal_is_front_page()) {
+    global $user;
+    //debug($user, 'Niclane', TRUE);
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function my_module_menu() {
+  $items =  array();
+
+  $items['main-page'] = array(
+    'page callback'   => 'my_module_mainpage_view',
+    'access arguments' => array('administer my module'),
+    'title'           => 'Main page',
+    'menu_name'       => 'main-menu',
+    'weight'          => '-50',
+  );
+
+  $items['error/%'] = array(
+    'page callback'   => 'my_module_error_view',
+    'access callback' => TRUE,
+    'page arguments'  => array(1),
+    'title'           => 'ERROR',
+    'menu_name'       => '<none>',
+  );
+
+  $items['account/%/%'] = array(
+    'page callback'   => 'my_module_accnod_view',
+    'page arguments'  => array(1, 2),
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+
+/**
+ * Function my_module_view
+ */
+function my_module_error_view($arg) {
+  $error = t('Page not found~!!!!!111111 one');
+  switch ($arg) {
+    case 403:
+      $error = t('Error 403! Sorry, your page was not found!');
+      break;
+
+    case 404:
+      $error = t('Error 404! Sorry, but your page was not found!');
+      break;
+  }
+  return $error;
+}
+
+/**
+ * Function my_module_main-page_view
+ */
+function my_module_mainpage_view() {
+  $node = node_load(14);
+  return t('I\'m happy to see you on the main page!');
+}
+
+/**
+ * Function my_module_accnod_view
+ */
+function my_module_accnod_view($uid, $nid) {
+  if (!empty($uid) && !empty($nid) && is_numeric($uid) && is_numeric($nid)) {
+    $user = user_load($uid);
+    $node = node_load($nid);
+    //debug(array($user, $node), 'derek', TRUE);
+    if ($user && $node && ($user->uid == $node->uid)) {
+      drupal_set_title($node->title);
+      return node_view($node, 'full');
+    }
+    else {
+      return t('WRONG account or node!');
+    }
+  }
+  else {
+    return t('Something wrong!');
+  }
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function my_module_block_info() {
+  $blocks['my_block'] = array(
+    'info' => t('My block'),
+  );
+
+  $blocks['user_block'] = array(
+    'info' => t('User block'),
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function my_module_block_view($delta = '') {
+  global $user;
+  //debug($user, 'bu');
+  $block = array();
+
+  switch ($delta) {
+    case 'my_block':
+      $block['subject'] = t('This is my block');
+      $node = node_load(11);
+      $full_node = node_view($node, 'full');
+      if (user_access('administer my module')) {
+        $block['content'] = $full_node;
+      }
+      else {
+        $block['content'] = 'access to view this content is denied';
+      }
+      break;
+
+    case 'user_block':
+      $block['subject'] = t('Your nodes:');
+      $text_content = '';
+      $uid = arg(1);
+      $items = array();
+      if (is_numeric($uid) && $user->uid == $uid) {
+        $nodes = db_select('node', 'n')
+          ->fields('n', array('nid', 'title'))
+          ->condition('n.uid', $uid)
+          ->execute()
+          ->fetchAll();
+        foreach ($nodes as $val) {
+          $url = $val->nid;
+          $items[] = l(t($val->title), "node/$url");
+        }
+        //debug($nodes, 'derek', TRUE);
+        $block['content'] = theme_item_list(array(
+          'items' => $items,
+          'title' => t('BUUU'),
+          'type'  => 'ul',
+          'attributes' => array(),
+        ));
+      }
+      else {
+        $block['content'] = t('Arg is no numeric or this is not you');
+      }
+      break;
+    //case '':
+      //$block['subject'] = t('');
+      //$block['content'] = theme('', array('' =>));
+      //break;
+
+  }
+  return $block;
+}
+

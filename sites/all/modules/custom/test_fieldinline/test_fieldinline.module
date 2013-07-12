@@ -1,0 +1,82 @@
+<?php
+function test_fieldinline_menu() {
+  $items = array();
+  $items['test_fieldinline'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('test_fieldinline_form'),
+    'access arguments' => array('access content'),
+    'title' => 'Тестируем вывод полей в строку',
+    'type' => MENU_NORMAL_ITEM,
+	);
+return $items;
+}
+
+
+/**
+ * Реализация hook_theme()
+ */
+function test_fieldinline_theme()
+{return array(
+   'inline_fields' => array(
+        'render element' => 'element',
+    ),
+  );
+}
+
+
+//
+//Форма
+//
+function test_fieldinline_form($form, &$form_state, $metal=NULL) {
+$form = array();
+
+$form['cont1']=array(
+    '#type'=>'markup',
+    '#title' => 'Укажите габаритные размеры',
+    '#description' => 'Ширина и высота,мм',
+    '#theme' => array('inline_fields'),
+    '#fields_separator' => ' х ',     //тут все по старому
+    '#not_div'=>true,   //еще один выдуманный элемент, расскажу о нем вконце статьи
+);
+$form['cont1']['pole1']=array(
+        '#type'=>'textfield',
+        '#default_value' => '',
+        '#maxlength' => 5,
+        '#size' => 5,
+    );
+
+$form['cont1']['pole2']=array(
+        '#type'=>'textfield',
+        '#default_value' => '',
+        '#maxlength' => 5,
+        '#size' => 5,
+    );
+return $form;
+}
+
+
+
+
+/**
+ * theme функция вывода полей в один ряд
+ */
+function theme_inline_fields($variables)
+{
+    $form = $variables['element'];
+    $fields = array();
+    foreach ($form as $key => $element)
+    {
+      // ищем дочерние поля
+        if (substr($key, 0, 1) != '#')
+        {
+            $size = empty($element['#size']) ? '' : ' size="'. $element['#size'] .'"';
+             // если при валидации в поле была допущена ошибка, функция добавит к элементу класс error
+            _form_set_class($element, array());
+            if(isset($form['#not_div']) && $form['#not_div'])
+                unset($element['#theme_wrappers']);
+            $fields[] = '<div style="display:inline-block">'.drupal_render($element).'</div>';
+        }
+    }
+    $form['#children']=implode($form['#fields_separator'], $fields);
+ return theme('form_element', array('element'=>$form));
+}

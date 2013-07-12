@@ -1,0 +1,4 @@
+name = My module
+description = My firs module
+package = Custom
+core = 7.x
